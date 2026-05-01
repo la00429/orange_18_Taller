@@ -22,12 +22,40 @@ describe('OrangeHRM Login - Taller Completo', () => {
   it('Interceptar solicitud GET', () => {
     cy.intercept('GET', '**/web/index.php/auth/login*').as('getLogin');
     cy.reload();
-    
+
     cy.wait('@getLogin').then((interception) => {
       expect(interception.response.statusCode).to.be.oneOf([200, 304]);
     });
 
     cy.screenshot('02-pagina-login-cargada');
+  });
+
+  // Punto 4: DEBUG - cy.pause()
+  /*it('Debug - cy.pause()', () => {
+    cy.get('input[name="username"]').type('Admin');
+    cy.pause();
+    cy.get('input[name="password"]').type('admin123');
+    cy.get('button[type="submit"]').click();
+    cy.url().should('include', '/dashboard');
+  }); */
+
+  // Punto 4: DEBUG - cy.debug()
+  /* it('Debug - cy.debug()', () => {
+    cy.get('input[name="username"]').debug().type('Admin');
+    cy.get('input[name="password"]').debug().type('admin123');
+    cy.get('button[type="submit"]').click();
+    cy.url().should('include', '/dashboard');
+  }); */
+
+  // Punto 4: DEBUG - debugger
+  it('Debug - debugger statement', () => {
+    cy.get('input[name="username"]').then((element) => {
+      debugger;
+      cy.wrap(element).type('Admin');
+    });
+    cy.get('input[name="password"]').type('admin123');
+    cy.get('button[type="submit"]').click();
+    cy.url().should('include', '/dashboard');
   });
 
   // Punto 5: STUBS
@@ -38,6 +66,8 @@ describe('OrangeHRM Login - Taller Completo', () => {
     cy.get('input[name="username"]').type('invalidUser');
     cy.get('input[name="password"]').type('wrongPass');
     cy.get('button[type="submit"]').click();
+
+    cy.pause();
 
     cy.url().should('include', 'login');
     cy.screenshot('03-error-credenciales');
@@ -56,13 +86,12 @@ describe('OrangeHRM Login - Taller Completo', () => {
 
     cy.url().should('include', '/dashboard');
     cy.get('@consoleError').should('not.have.been.called');
-    cy.screenshot('04-sin-errores-console');
   });
 
   // Punto 5: CLOCKS
   it('Clocks - medir tiempo de respuesta', () => {
     const startTime = Date.now();
-    
+
     cy.intercept('POST', '**/web/index.php/auth/validate', (req) => {
       req.reply((res) => {
         const responseTime = Date.now() - startTime;
@@ -92,7 +121,7 @@ describe('OrangeHRM Login - Taller Completo', () => {
   });
 
   // Punto 8: CONDITIONAL TESTING - VIEWPORT
-  it('Conditional - ejecutar en viewport desktop', function() {
+  it('Conditional - ejecutar en viewport desktop', function () {
     if (Cypress.env('MOBILE')) {
       cy.skip();
     }
@@ -107,4 +136,7 @@ describe('OrangeHRM Login - Taller Completo', () => {
     cy.get('.orangehrm-login-forgot > .oxd-text').click();
     cy.url().should('include', '/auth/requestPasswordResetCode');
   });
+
+  cy.inter
+
 });
